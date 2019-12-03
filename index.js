@@ -7,25 +7,10 @@ const workerFarm  = require('worker-farm')
 const workers     = workerFarm(require.resolve('./compress.js'))
 const colors      = require('colors')
 
-const compressData = async (filePath) => {
-  const rawDSata    = fs.readFileSync(filePath)
-  let binaryData = compress(rawDSata, {
-    mode: 1,
-    quality: 11
-  });
-
-  let ext = path.extname(filePath)
-  let brottliFilePath = filePath.replace(ext, '.br' + ext)
-
-  fs.writeFile(brottliFilePath, binaryData, function(err) {
-   if(err) {
-     console.log("something is not working")
-     return console.log(err);
-   }
-   console.log("Compressed: " + brottliFilePath)
-  })
-}
-
+const os = require('os')
+const fs = require('fs')
+const FindFiles = require('file-regex');
+const fileSize = require("filesize");
 
 const listAllFiles = async(dir) => {
   var files = [];
@@ -51,19 +36,49 @@ const listAllFiles = async(dir) => {
       const element = files[index];
       workers(element, (err, outp) => {
         console.log(colors.green("Compressed: " + outp.filePath))
-        console.log(colors.brightYellow("Original size: " + outp.originalFileSize) + " | " + colors.brightYellow("Brotli Size: " + outp.brotliFileSize) + " | " + colors.brightWhite("Saved: " + outp.difference))
+        console.log(colors.grey("Original size: " + outp.originalFileSize + " | " + "Brotli Size: " + outp.brotliFileSize + " | " + "Saved: " + outp.difference))
         console.log("\n")
         if(index >= files.length-1) {
-          workerFarm.end(workers)
+          workerFarm.end(workers, (callb) => {
+            getTotalFileSize()
+          });
         }
       });
     }
   });
 }
 
-if (argv.dir){
-  listAllFiles(argv.dir)
+const argv_dir = argv.dir
+
+if (argv_dir){
+  listAllFiles(argv_dir)
 } else {
   console.log(colors.red("ERROR: No --dir was set."))
 }
 
+
+
+const getTotalFileSize = async () => {
+  let originalTotalFileSize = 0;
+  let brotiTotalFileSize = 0;
+
+  const originalFiles = await FindFiles("./tests/files", /^((?!\.br).)*\.(svg|html|json|js|css|xml|htm)$/gm, 9999, { concurrency: os.cpus().length})
+  for (let index = 0; index < originalFiles.length; index++) {
+    originalTotalFileSize += fs.statSync(originalFiles[index].dir + "/" + originalFiles[index].file).size;
+  }
+
+  const BrotilFiles = await FindFiles("./tests/files", /\.br\./, 9999, { concurrency: os.cpus().length })
+  for (let index = 0; index < BrotilFiles.length; index++) {
+    brotiTotalFileSize += fs.statSync(BrotilFiles[index].dir + "/" + BrotilFiles[index].file).size;
+  }
+
+  console.log(colors.blue("Summary\n"))
+  console.log(colors.grey("Original Files Size: " + fileSize(originalTotalFileSize)) + "\n")
+  console.log(colors.grey("Brotli Files Size: " + fileSize(brotiTotalFileSize)) + "\n")
+  console.log(colors.brightWhite("Total save: " + fileSize(originalTotalFileSize - brotiTotalFileSize)) + "\n")
+}
+
+// find.file(/\.br\./, "./tests/files", function (files) {
+//   console.log("BR")
+//   console.log(files);
+// })
