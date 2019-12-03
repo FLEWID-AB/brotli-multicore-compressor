@@ -1,12 +1,14 @@
 {
   "name": "brotli-multicore-compressor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A wrapper to compress files within a --dir passed. This runs on the machines amount of cores so expect fast speeds :)",
   "keywords" : ["brotli", "compression", "multicore"],
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "homepage" : "https://github.com/FLEWID-AB/brotli-multicore-compressor",
+  "bugs" : { "url": "https://github.com/FLEWID-AB/brotli-multicore-compressor/issues" },
   "author": "Preen",
   "license": "MIT",
   "dependencies": {
