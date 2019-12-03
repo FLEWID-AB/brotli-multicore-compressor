@@ -1,0 +1,25 @@
+{
+  "name": "brotli-multicore-compressor",
+  "version": "1.0.1",
+  "description": "A wrapper to compress files within a --dir passed. This runs on the machines amount of cores so expect fast speeds :)",
+  "keywords" : ["brotli", "compression", "multicore"],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Preen",
+  "license": "MIT",
+  "dependencies": {
+    "brotli": "^1.3.2",
+    "colors": "^1.4.0",
+    "filesize": "^6.0.1",
+    "node-gzip": "^1.1.2",
+    "path": "^0.12.7",
+    "walk": "^2.3.14",
+    "worker-farm": "^1.7.0",
+    "yargs": "^15.0.2"
+  },
+  "bin": {
+    "brotli-compress": "./index.js"
+  }
+}
